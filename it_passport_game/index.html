@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b1020">
+  <meta name="description" content="ITパスポートの知識を5問でチェックするクイズゲーム">
+  <title>IT PASSPORT QUEST</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1020;
+      --panel: #131b30;
+      --panel-2: #19243c;
+      --line: #2a3855;
+      --text: #f4f7ff;
+      --muted: #a8b4cd;
+      --mint: #72f2c3;
+      --cyan: #75d8ff;
+      --gold: #ffd36e;
+      --danger: #ff8291;
+      --radius: 22px;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", Meiryo, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100svh; color: var(--text);
+      background: radial-gradient(ellipse at 50% -20%, #24335b 0, transparent 54%), var(--bg);
+      font-size: 17px; line-height: 1.65;
+    }
+    button { color: inherit; font: inherit; }
+    .shell { width: min(100% - 32px, 600px); margin: 0 auto; padding: 28px 0 max(28px, env(safe-area-inset-bottom)); }
+    header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+    .brand { display: flex; align-items: center; gap: 11px; letter-spacing: .09em; font-size: 14px; font-weight: 900; }
+    .brand-mark { display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid #427565; border-radius: 12px; background: #15342f; color: var(--mint); font-size: 20px; }
+    .tag { border: 1px solid var(--line); border-radius: 999px; padding: 5px 11px; color: var(--muted); font-size: 12px; letter-spacing: .08em; }
+    main { min-height: 55svh; }
+    .hero { padding: 26px 2px 20px; }
+    .eyebrow { color: var(--mint); font-weight: 800; font-size: 13px; letter-spacing: .14em; }
+    h1 { margin: 10px 0 12px; font-size: clamp(34px, 9vw, 52px); line-height: 1.12; letter-spacing: -.045em; }
+    h1 span { color: var(--mint); }
+    .intro { max-width: 38ch; margin: 0; color: var(--muted); font-size: 17px; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 28px 0 24px; }
+    .stat { padding: 14px 10px; border: 1px solid var(--line); border-radius: 16px; background: #111a2d; text-align: center; }
+    .stat strong { display: block; color: var(--text); font-size: 22px; line-height: 1.3; }
+    .stat small { color: var(--muted); font-size: 12px; }
+    .genre-label { margin: 24px 0 10px; color: var(--muted); font-size: 13px; font-weight: 700; }
+    .genres { display: flex; flex-wrap: wrap; gap: 8px; }
+    .genre-chip { border: 1px solid var(--line); border-radius: 999px; padding: 6px 11px; background: #121b2e; color: #d7e2f5; font-size: 13px; }
+    .primary { width: 100%; min-height: 60px; margin-top: 27px; border: 0; border-radius: 17px; background: linear-gradient(100deg, var(--mint), #8be8f2); color: #09201c; font-weight: 900; font-size: 19px; box-shadow: 0 10px 30px #58dcb433; cursor: pointer; transition: transform .15s, filter .15s; }
+    .primary:active { transform: scale(.985); filter: brightness(.94); }
+    .hint { margin: 13px 0 0; color: var(--muted); text-align: center; font-size: 13px; }
+    .game-top { display: flex; justify-content: space-between; align-items: center; margin: 0 1px 12px; color: var(--muted); font-size: 14px; font-weight: 700; }
+    .game-top strong { color: var(--text); font-size: 15px; }
+    .progress { height: 8px; overflow: hidden; border-radius: 999px; background: #202a40; }
+    .progress-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--mint), var(--cyan)); transition: width .3s ease; }
+    .question-card { margin-top: 20px; padding: 22px 19px 20px; border: 1px solid var(--line); border-radius: var(--radius); background: linear-gradient(145deg, #17223a, #11192b); box-shadow: 0 20px 50px #0003; }
+    .category { display: inline-block; margin-bottom: 15px; padding: 5px 10px; border: 1px solid #345b56; border-radius: 999px; background: #15332f; color: var(--mint); font-size: 13px; font-weight: 800; }
+    .category.management { border-color: #4a4d79; background: #252746; color: #b9b6ff; }
+    .category.technology { border-color: #325477; background: #172d48; color: var(--cyan); }
+    .question { margin: 0; font-size: clamp(21px, 6vw, 27px); line-height: 1.55; font-weight: 800; letter-spacing: .01em; }
+    .choices { display: grid; gap: 11px; margin-top: 20px; }
+    .choice { display: flex; align-items: center; gap: 13px; width: 100%; min-height: 62px; padding: 12px 14px; border: 1px solid #34415b; border-radius: 16px; background: #151f34; text-align: left; font-size: 17px; font-weight: 700; line-height: 1.45; cursor: pointer; transition: border-color .15s, background .15s, transform .15s; }
+    .choice:active { transform: scale(.99); }
+    .choice:hover, .choice:focus-visible { border-color: var(--cyan); outline: none; }
+    .choice:disabled { cursor: default; }
+    .choice.correct { border-color: #4cc99e; background: #16392f; }
+    .choice.wrong { border-color: #d76778; background: #3b222e; }
+    .choice-letter { display: grid; flex: 0 0 34px; place-items: center; width: 34px; height: 34px; border: 1px solid #43516d; border-radius: 11px; color: var(--cyan); font-size: 15px; font-weight: 900; }
+    .choice.correct .choice-letter { border-color: #4cc99e; color: var(--mint); }
+    .choice.wrong .choice-letter { border-color: #d76778; color: var(--danger); }
+    .feedback { margin-top: 15px; padding: 15px; border: 1px solid var(--line); border-radius: 15px; background: #10182a; }
+    .feedback-title { margin: 0 0 5px; font-size: 17px; font-weight: 900; }
+    .feedback-title.good { color: var(--mint); }
+    .feedback-title.bad { color: var(--danger); }
+    .feedback p:last-child { margin: 0; color: #c4cfe2; font-size: 15px; }
+    .next { min-height: 56px; margin-top: 14px; font-size: 17px; }
+    .result { padding: 28px 20px 23px; border: 1px solid var(--line); border-radius: 24px; background: linear-gradient(145deg, #17223a, #11192b); text-align: center; }
+    .result-icon { display: grid; place-items: center; width: 72px; height: 72px; margin: 0 auto 18px; border: 1px solid #477866; border-radius: 24px; background: #16352f; color: var(--mint); font-size: 34px; }
+    .result h2 { margin: 4px 0; font-size: 27px; }
+    .result-score { margin: 10px 0 0; color: var(--mint); font-size: 60px; font-weight: 950; line-height: 1.15; letter-spacing: -.05em; }
+    .result-score small { color: var(--muted); font-size: 20px; letter-spacing: 0; }
+    .result-copy { margin: 8px 0 20px; color: var(--muted); }
+    .result .primary { margin-top: 5px; }
+    .secondary { width: 100%; min-height: 54px; margin-top: 11px; border: 1px solid var(--line); border-radius: 16px; background: transparent; color: var(--text); font-weight: 800; cursor: pointer; }
+    footer { margin-top: 32px; color: #77849d; text-align: center; font-size: 12px; }
+    [hidden] { display: none !important; }
+    @media (min-width: 520px) { .shell { padding-top: 38px; } .hero { padding-top: 38px; } .question-card { padding: 25px; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div class="brand"><span class="brand-mark" aria-hidden="true">✦</span><span>IT PASSPORT<br>QUEST</span></div>
+      <div class="tag">5 QUESTION TRY</div>
+    </header>
+    <main>
+      <section id="home" aria-labelledby="title">
+        <div class="hero">
+          <div class="eyebrow">KNOWLEDGE QUEST / IT PASSPORT</div>
+          <h1 id="title">知識を、<br><span>スコアに。</span></h1>
+          <p class="intro">ITパスポートの頻出テーマに挑戦。5問のクイズで、今の実力をチェックしよう。</p>
+          <div class="stats" aria-label="ゲームのルール">
+            <div class="stat"><strong>05</strong><small>QUESTIONS</small></div>
+            <div class="stat"><strong>100</strong><small>MAX SCORE</small></div>
+            <div class="stat"><strong>15</strong><small>QUESTION BANK</small></div>
+          </div>
+          <p class="genre-label">出題ジャンル</p>
+          <div class="genres"><span class="genre-chip">ストラテジ系</span><span class="genre-chip">マネジメント系</span><span class="genre-chip">テクノロジ系</span></div>
+          <button class="primary" id="startButton" type="button">クエストを始める <span aria-hidden="true">→</span></button>
+          <p class="hint">問題は毎回シャッフル · 1問ずつ解説付き</p>
+        </div>
+      </section>
+
+      <section id="game" hidden aria-live="polite" aria-label="クイズ">
+        <div class="game-top"><span id="questionCount">QUESTION 1 / 5</span><strong id="liveScore">SCORE&nbsp; 0</strong></div>
+        <div class="progress" role="progressbar" aria-label="クイズの進行状況" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+        <article class="question-card">
+          <span class="category" id="category"></span>
+          <h2 class="question" id="questionText"></h2>
+          <div class="choices" id="choices"></div>
+          <div class="feedback" id="feedback" hidden aria-live="polite"></div>
+          <button class="primary next" id="nextButton" type="button" hidden>次の問題へ <span aria-hidden="true">→</span></button>
+        </article>
+      </section>
+
+      <section id="result" hidden aria-labelledby="resultTitle" aria-live="polite">
+        <div class="result">
+          <div class="result-icon" aria-hidden="true">✦</div>
+          <div class="eyebrow">QUEST COMPLETE</div>
+          <h2 id="resultTitle">クエストクリア！</h2>
+          <p class="result-score"><span id="finalScore">0</span><small> / 100</small></p>
+          <p class="result-copy" id="resultCopy"></p>
+          <button class="primary" id="retryButton" type="button">もう一度挑戦する <span aria-hidden="true">↻</span></button>
+          <button class="secondary" id="homeButton" type="button">タイトルに戻る</button>
+        </div>
+      </section>
+    </main>
+    <footer>IT PASSPORT QUEST <span aria-hidden="true">·</span> LEARN BY PLAYING</footer>
+  </div>
+  <script>
+    "use strict";
+    const bank = [
+      { genre: "ストラテジ系", question: "企業が経営目標を達成するために、現状と目標の差を分析する手法はどれですか？", choices: ["ギャップ分析", "損益分岐点分析", "ABC分析", "回帰分析"], answer: 0, explanation: "ギャップ分析は、現状と目標の差を明らかにし、必要な対策を考える方法です。" },
+      { genre: "ストラテジ系", question: "商品を販売する相手を年齢や地域などで分けることを何といいますか？", choices: ["デバッグ", "セグメンテーション", "正規化", "バックアップ"], answer: 1, explanation: "セグメンテーションは、市場を共通の特徴を持つグループに分けることです。" },
+      { genre: "ストラテジ系", question: "情報システムの導入前に、費用と効果を比較して実施価値を検討することは何ですか？", choices: ["費用対効果分析", "コードレビュー", "稼働監視", "棚卸し"], answer: 0, explanation: "費用対効果分析では、導入にかかる費用と期待できる効果を比較します。" },
+      { genre: "ストラテジ系", question: "企業の強み・弱みと、外部環境の機会・脅威を整理する分析手法はどれですか？", choices: ["SWOT分析", "時系列分析", "クラスタ分析", "ベンチマークテスト"], answer: 0, explanation: "SWOT分析では、強み・弱み・機会・脅威の4つの観点で状況を整理します。" },
+      { genre: "ストラテジ系", question: "顧客にとっての商品の価値を高め、競争優位を築くための活動全体を何といいますか？", choices: ["バリューチェーン", "ガントチャート", "フィッシング", "正規化"], answer: 0, explanation: "バリューチェーンは、商品やサービスの価値を生み出す一連の活動を指します。" },
+      { genre: "マネジメント系", question: "プロジェクトの作業を細かい単位に分解して整理した構成図は何ですか？", choices: ["WBS", "DFD", "UML", "SLA"], answer: 0, explanation: "WBSは、プロジェクトの作業を細分化して階層的に整理したものです。" },
+      { genre: "マネジメント系", question: "システム開発で、要件定義からテストまで順番に進める開発モデルは何ですか？", choices: ["アジャイルモデル", "ウォーターフォールモデル", "スパイラルモデル", "プロトタイプモデル"], answer: 1, explanation: "ウォーターフォールモデルは、工程を順番に進める開発モデルです。" },
+      { genre: "マネジメント系", question: "サービスの提供内容や品質目標を利用者と合意した文書は何ですか？", choices: ["RFP", "SLA", "FAQ", "WBS"], answer: 1, explanation: "SLAは、サービスの内容や目標とする品質について利用者と提供者が合意する文書です。" },
+      { genre: "マネジメント系", question: "プロジェクトの進捗を管理するとき、予定と実績を比較するために使う図は何ですか？", choices: ["ガントチャート", "散布図", "状態遷移図", "特性要因図"], answer: 0, explanation: "ガントチャートは、作業の予定や実績を時間軸に沿って表す進捗管理の図です。" },
+      { genre: "マネジメント系", question: "ソフトウェアの不具合を見つけるため、仕様に基づいて動作を確認する作業は何ですか？", choices: ["テスト", "要件定義", "運用", "企画"], answer: 0, explanation: "テストでは、プログラムが仕様どおりに動作するかを確認し、不具合を検出します。" },
+      { genre: "テクノロジ系", question: "コンピュータが扱う情報の最小単位は何ですか？", choices: ["バイト", "ビット", "ピクセル", "パケット"], answer: 1, explanation: "ビットは、0または1で表される情報の最小単位です。8ビットで1バイトになります。" },
+      { genre: "テクノロジ系", question: "同じネットワーク内の機器を識別するために使うIPアドレスの役割は何ですか？", choices: ["機器を識別するための番号", "画面の色を決める番号", "ファイルを圧縮する番号", "時刻を記録する番号"], answer: 0, explanation: "IPアドレスは、ネットワーク上で機器を識別し、通信相手を特定するために使います。" },
+      { genre: "テクノロジ系", question: "データを一定の規則で変換し、第三者に読まれにくくする処理は何ですか？", choices: ["暗号化", "複製", "圧縮", "集計"], answer: 0, explanation: "暗号化は、鍵などを使ってデータを変換し、内容を読みにくくする処理です。" },
+      { genre: "テクノロジ系", question: "複数のコンピュータをつなぎ、データをやり取りできるようにした仕組みは何ですか？", choices: ["ネットワーク", "データベース", "アルゴリズム", "インターフェース"], answer: 0, explanation: "ネットワークは、コンピュータなどを接続して情報を交換する仕組みです。" },
+      { genre: "テクノロジ系", question: "CPUが一度に処理できるデータの幅を表すものはどれですか？", choices: ["ビット幅", "画素数", "通信速度", "記憶容量"], answer: 0, explanation: "ビット幅は、CPUが一度に扱えるデータ量を示します。" }
+    ];
+    const TOTAL = 5;
+    const $ = (id) => document.getElementById(id);
+    const screens = { home: $("home"), game: $("game"), result: $("result") };
+    let round = [];
+    let position = 0;
+    let correct = 0;
+    let answered = false;
+
+    function showScreen(name) {
+      Object.entries(screens).forEach(([key, section]) => { section.hidden = key !== name; });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    function startQuiz() {
+      const genres = ["ストラテジ系", "マネジメント系", "テクノロジ系"];
+      const shuffled = (items) => [...items].sort(() => Math.random() - 0.5);
+      const firstFromEachGenre = genres.map((genre) => shuffled(bank.filter((item) => item.genre === genre))[0]);
+      const remaining = bank.filter((item) => !firstFromEachGenre.includes(item));
+      round = shuffled([...firstFromEachGenre, ...shuffled(remaining).slice(0, TOTAL - genres.length)]);
+      position = 0;
+      correct = 0;
+      showScreen("game");
+      renderQuestion();
+    }
+    function renderQuestion() {
+      answered = false;
+      const item = round[position];
+      $("questionCount").textContent = `QUESTION ${String(position + 1).padStart(2, "0")} / 05`;
+      $("liveScore").innerHTML = `SCORE&nbsp; ${correct * 20}`;
+      $("progressFill").style.width = `${(position / TOTAL) * 100}%`;
+      const progress = $("game").querySelector('[role="progressbar"]');
+      progress.setAttribute("aria-valuenow", String(position));
+      const category = $("category");
+      category.textContent = item.genre;
+      category.className = "category";
+      if (item.genre === "マネジメント系") category.classList.add("management");
+      if (item.genre === "テクノロジ系") category.classList.add("technology");
+      $("questionText").textContent = item.question;
+      $("feedback").hidden = true;
+      $("nextButton").hidden = true;
+      const choices = $("choices");
+      choices.replaceChildren();
+      item.choices.forEach((choice, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "choice";
+        button.innerHTML = `<span class="choice-letter">${String.fromCharCode(65 + index)}</span><span></span>`;
+        button.lastElementChild.textContent = choice;
+        button.addEventListener("click", () => selectAnswer(index));
+        choices.append(button);
+      });
+    }
+    function selectAnswer(selected) {
+      if (answered) return;
+      answered = true;
+      const item = round[position];
+      const buttons = [...$("choices").children];
+      buttons.forEach((button, index) => {
+        button.disabled = true;
+        if (index === item.answer) button.classList.add("correct");
+        else if (index === selected) button.classList.add("wrong");
+      });
+      const isCorrect = selected === item.answer;
+      if (isCorrect) correct++;
+      $("liveScore").innerHTML = `SCORE&nbsp; ${correct * 20}`;
+      const feedback = $("feedback");
+      feedback.replaceChildren();
+      const title = document.createElement("p");
+      title.className = `feedback-title ${isCorrect ? "good" : "bad"}`;
+      title.textContent = isCorrect ? "正解！ +20 POINTS" : `不正解 · 正解は「${item.choices[item.answer]}」`;
+      const explanation = document.createElement("p");
+      explanation.textContent = item.explanation;
+      feedback.append(title, explanation);
+      feedback.hidden = false;
+      $("nextButton").textContent = position === TOTAL - 1 ? "結果を見る →" : "次の問題へ →";
+      $("nextButton").hidden = false;
+      $("nextButton").focus({ preventScroll: true });
+    }
+    function nextQuestion() {
+      position++;
+      if (position >= TOTAL) finishQuiz();
+      else renderQuestion();
+    }
+    function finishQuiz() {
+      const score = correct * 20;
+      $("finalScore").textContent = String(score);
+      $("resultCopy").textContent = `${TOTAL}問中${correct}問正解 · 正答率 ${correct * 20}%`;
+      $("resultTitle").textContent = score === 100 ? "パーフェクト！" : score >= 60 ? "クエストクリア！" : "ナイスチャレンジ！";
+      $("progressFill").style.width = "100%";
+      showScreen("result");
+    }
+    $("startButton").addEventListener("click", startQuiz);
+    $("retryButton").addEventListener("click", startQuiz);
+    $("homeButton").addEventListener("click", () => showScreen("home"));
+    $("nextButton").addEventListener("click", nextQuestion);
+  </script>
+</body>
+</html>
